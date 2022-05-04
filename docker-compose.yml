@@ -1,0 +1,41 @@
+version: "3.8"
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+      - site-packages:/usr/local/lib/python3.8/site-packages
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7.22
+    restart: always
+    environment:
+      MYSQL_DATABASE: main
+      MYSQL_USER: root
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - mysql-data:/var/lib/mysql
+    ports:
+      - 3306:3306
+
+  front:
+    build:
+      context: .
+      dockerfile: Dockerfile_front
+    restart: always
+    volumes:
+      - ./node:/usr/src/app:cached
+    command: sh -c "cd django_front && yarn start"
+    ports:
+      - "3000:3000"
+
+volumes:
+  mysql-data:
+  site-packages:
